@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nayane Luz · CSIRT & CTI Security Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #03060f;
+    --bg2: #060c18;
+    --bg3: #080f1e;
+    --border: rgba(60,130,255,0.12);
+    --blue: #3d8bff;
+    --blue2: #6aaeff;
+    --gold: #e8b84b;
+    --text: #c2d4ee;
+    --muted: #4e6080;
+    --card: rgba(6,12,24,0.97);
+    --glow: 0 0 40px rgba(61,139,255,0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.5;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(61,139,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61,139,255,0.025) 1px, transparent 1px);
+    background-size: 72px 72px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .lang-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: flex-end; align-items: center;
+    padding: 16px 48px;
+    background: linear-gradient(180deg, rgba(3,6,15,0.97) 0%, transparent 100%);
+    backdrop-filter: blur(12px);
+  }
+
+  .lang-toggle {
+    display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden;
+  }
+
+  .lang-btn {
+    background: none; border: none; padding: 6px 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all 0.2s; letter-spacing: 0.1em;
+  }
+
+  .lang-btn.active { background: var(--blue); color: #07090d; }
+
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 120px 64px 80px;
+    position: relative; z-index: 1;
+  }
+
+  .hero-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
+    color: var(--blue); letter-spacing: 0.22em; text-transform: uppercase;
+    margin-bottom: 28px; opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-label::before { content: '> '; opacity: 0.4; }
+
+  .hero-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(58px, 8.5vw, 118px);
+    font-weight: 800; line-height: 0.92; letter-spacing: -0.035em;
+    color: #fff; opacity: 0; animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .hero-name .last { color: var(--blue); }
+
+  .hero-title {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: clamp(16px, 2.2vw, 24px); font-weight: 300;
+    color: var(--gold); margin-top: 22px;
+    opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .hero-desc {
+    max-width: 600px; font-size: 15.5px; color: var(--muted);
+    margin-top: 30px; line-height: 1.85;
+    opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+
+  .hero-cta {
+    display: flex; gap: 14px; margin-top: 48px; flex-wrap: wrap;
+    opacity: 0; animation: fadeUp 0.8s ease 1s forwards;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 28px; background: var(--blue); color: #07090d;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.08em; text-decoration: none; border-radius: 3px; transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--blue2); transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(61,139,255,0.10);
+  }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; border: 1px solid var(--border); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
+    letter-spacing: 0.08em; text-decoration: none; border-radius: 3px; transition: all 0.2s;
+  }
+
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+  .scroll-hint {
+    position: absolute; bottom: 44px; left: 64px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase;
+    opacity: 0; animation: fadeUp 1s ease 1.4s forwards;
+  }
+
+  .scroll-line {
+    width: 44px; height: 1px; background: var(--muted); position: relative; overflow: hidden;
+  }
+
+  .scroll-line::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: var(--blue); animation: scanLine 2.2s ease-in-out 2s infinite;
+  }
+
+  .hero-orb {
+    position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+    width: 520px; height: 520px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(61,139,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-ring {
+    position: absolute; right: 8%; top: 50%; transform: translateY(-50%);
+    width: 380px; height: 380px; border-radius: 50%;
+    border: 1px solid rgba(61,139,255,0.06); pointer-events: none;
+  }
+
+  section { position: relative; z-index: 1; padding: 108px 64px; }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 400;
+    color: var(--blue); letter-spacing: 0.28em; text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  .section-label::before { content: '// '; opacity: 0.4; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(30px, 4vw, 50px);
+    font-weight: 700; line-height: 1.08; color: #fff; margin-bottom: 64px;
+  }
+
+  .divider { width: 52px; height: 1px; background: var(--blue); opacity: 0.35; margin-bottom: 56px; }
+
+  .about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 88px; align-items: start; }
+
+  .about-text p { color: var(--muted); margin-bottom: 18px; font-size: 15.5px; line-height: 1.9; }
+  .about-text p strong { color: var(--text); font-weight: 400; }
+  .about-text em { font-style: italic; color: var(--text); }
+
+  .about-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 34px; }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 5px 12px; border: 1px solid var(--border); color: var(--muted);
+    letter-spacing: 0.07em; border-radius: 2px; transition: all 0.2s;
+  }
+
+  .tag:hover { border-color: var(--blue); color: var(--blue); }
+  .tag.hi { border-color: rgba(61,139,255,0.10); color: var(--blue); background: rgba(61,139,255,0.10); }
+
+  .stats-block { display: flex; flex-direction: column; gap: 24px; }
+
+  .stat-item {
+    padding: 26px 28px; border: 1px solid var(--border);
+    border-left: 3px solid var(--blue); background: var(--card); border-radius: 2px;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800;
+    color: var(--blue); line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    color: var(--muted); margin-top: 7px; letter-spacing: 0.07em; line-height: 1.6;
+  }
+
+  .stack-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  .stack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 2px; }
+
+  .stack-card {
+    background: var(--bg3); padding: 28px 22px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: all 0.25s; border: 1px solid transparent; position: relative; overflow: hidden;
+  }
+
+  .stack-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--blue); transform: scaleX(0); transition: transform 0.25s;
+  }
+
+  .stack-card:hover { border-color: var(--border); background: #121720; }
+  .stack-card:hover::before { transform: scaleX(1); }
+
+  .stack-icon { font-size: 20px; }
+  .stack-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
+  .stack-type { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.07em; line-height: 1.6; }
+
+  .projects-list { display: grid; gap: 0; }
+
+  .project-item {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    gap: 36px; align-items: start; padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+    transition: padding-left 0.2s;
+  }
+
+  .project-item:hover { padding-left: 10px; }
+
+  .project-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--blue); opacity: 0.45; padding-top: 4px;
+  }
+
+  .project-title {
+    font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700;
+    color: #fff; margin-bottom: 10px;
+  }
+
+  .project-desc { font-size: 14px; color: var(--muted); line-height: 1.75; }
+
+  .project-insight {
+    margin-top: 14px; padding: 12px 16px;
+    border-left: 2px solid var(--blue);
+    background: rgba(61,139,255,0.10);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--blue); line-height: 1.7; letter-spacing: 0.03em;
+  }
+
+  .project-insight::before { content: '↳ '; opacity: 0.5; }
+
+  .project-stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+
+  .project-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    padding: 3px 8px; background: rgba(61,139,255,0.10);
+    border: 1px solid rgba(61,139,255,0.10); color: var(--blue);
+    border-radius: 2px; letter-spacing: 0.06em;
+  }
+
+  .project-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 6px 14px; border: 1px solid rgba(226,185,111,0.2);
+    color: var(--gold); border-radius: 2px; white-space: nowrap; letter-spacing: 0.07em;
+  }
+
+  .edu-card {
+    padding: 36px; border: 1px solid var(--border); background: var(--card);
+    border-radius: 4px; max-width: 640px; position: relative; overflow: hidden;
+  }
+
+  .edu-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  }
+
+  .edu-status {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 16px; display: inline-block;
+    padding: 4px 10px; border-radius: 2px;
+    background: rgba(226,185,111,0.08); color: var(--gold);
+    border: 1px solid rgba(226,185,111,0.2);
+  }
+
+  .edu-name {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
+    color: #fff; margin-bottom: 8px;
+  }
+
+  .edu-body { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  .contact-section { background: var(--bg2); border-top: 1px solid var(--border); }
+  .contact-text { font-size: 17px; color: var(--text); line-height: 1.85; margin-bottom: 44px; max-width: 620px; }
+  .contact-links { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .contact-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border: 1px solid var(--border); color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-decoration: none; letter-spacing: 0.08em; border-radius: 3px; transition: all 0.2s;
+  }
+
+  .contact-link:hover { border-color: var(--blue); color: var(--blue); }
+
+  footer {
+    padding: 36px 64px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 1; flex-wrap: wrap; gap: 16px;
+  }
+
+  .footer-sig {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    color: var(--muted); letter-spacing: 0.07em;
+  }
+
+  /* EXPERIENCE */
+  .exp-list { display: flex; flex-direction: column; gap: 0; }
+
+  .exp-item {
+    display: grid; grid-template-columns: 200px 1fr;
+    gap: 40px; padding: 36px 0; border-bottom: 1px solid var(--border);
+    transition: padding-left 0.2s;
+  }
+
+  .exp-item:hover { padding-left: 8px; }
+
+  .exp-meta { padding-top: 4px; }
+
+  .exp-period {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--blue); letter-spacing: 0.08em; margin-bottom: 6px;
+  }
+
+  .exp-company {
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    color: var(--muted); letter-spacing: 0.04em;
+  }
+
+  .exp-location {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--muted); opacity: 0.6; margin-top: 4px;
+  }
+
+  .exp-role {
+    font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700;
+    color: #fff; margin-bottom: 12px;
+  }
+
+  .exp-desc {
+    font-size: 14px; color: var(--muted); line-height: 1.8;
+  }
+
+  .exp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+
+  .exp-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    padding: 3px 8px; background: rgba(61,139,255,0.10);
+    border: 1px solid rgba(61,139,255,0.10); color: var(--muted);
+    border-radius: 2px; letter-spacing: 0.05em;
+  }
+
+  /* CERTS */
+  .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+  .cert-card {
+    padding: 24px; border: 1px solid var(--border); background: var(--card);
+    border-radius: 3px; transition: all 0.25s; position: relative; overflow: hidden;
+  }
+
+  .cert-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--blue); transform: scaleY(0); transition: transform 0.25s;
+  }
+
+  .cert-card:hover { border-color: rgba(61,139,255,0.10); }
+  .cert-card:hover::before { transform: scaleY(1); }
+
+  .cert-name {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    color: #fff; margin-bottom: 6px; line-height: 1.4;
+  }
+
+  .cert-issuer {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--blue); letter-spacing: 0.07em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scanLine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  @media (max-width: 860px) {
+    .hero, section { padding: 80px 24px; }
+    .about-grid { grid-template-columns: 1fr; gap: 52px; }
+    .project-item { grid-template-columns: 1fr; gap: 10px; }
+    .project-badge { display: none; }
+    footer { padding: 32px 24px; }
+    .scroll-hint, .hero-orb, .hero-ring { display: none; }
+    .lang-bar { padding: 14px 24px; }
+  }
+
+  /* LANG */
+  .en { display: revert; }
+  .pt { display: none; }
+  body.pt-mode .pt { display: revert; }
+  body.pt-mode .en { display: none; }
+  body.pt-mode .lang-btn[data-l="pt"] { background: var(--blue); color: #07090d; }
+  body.pt-mode .lang-btn[data-l="en"] { background: none; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="lang-bar">
+  <div class="lang-toggle">
+    <button class="lang-btn active" data-l="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-l="pt" onclick="setLang('pt')">PT</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-ring"></div>
+
+  <p class="hero-label">
+    <span class="en">CSIRT · CTI · Blue Team — Brazil</span>
+    <span class="pt">CSIRT · CTI · Blue Team — Brasil</span>
+  </p>
+
+  <h1 class="hero-name">
+    Nayane<br/><span class="last">Luz.</span>
+  </h1>
+
+  <p class="hero-title">
+    <span class="en">Cyber Security Engineer | Threat Intelligence | CSIRT</span>
+    <span class="pt">Cyber Security Engineer | Threat Intelligence | CSIRT</span>
+  </p>
+
+  <p class="hero-desc">
+    <span class="en">Cyber Security Engineer with 8+ years in IT — incident response, threat intelligence, CSIRT/SOC operations, and detection engineering in regulated environments. I reduce MTTR, eliminate noise, and make detections that matter.</span>
+    <span class="pt">Engenheira de Segurança com mais de 8 anos em TI — resposta a incidentes, inteligência de ameaças, operações CSIRT/SOC e engenharia de detecção em ambientes regulados. Reduzo MTTR, elimino ruído e construo detecções que importam.</span>
+  </p>
+
+  <div class="hero-cta">
+    <a href="https://wa.me/5541997661720" target="_blank" class="btn-primary">
+      <span class="en">✉ Get in touch</span>
+      <span class="pt">✉ Fale comigo</span>
+    </a>
+    <a href="https://www.linkedin.com/in/nayane-santos-da-luz/" target="_blank" class="btn-outline">↗ LinkedIn</a>
+    <a href="#projects" class="btn-outline">
+      <span class="en">View projects ↓</span>
+      <span class="pt">Ver projetos ↓</span>
+    </a>
+  </div>
+
+  <div class="scroll-hint">
+    <span class="scroll-line"></span>
+    <span class="en">Scroll to explore</span>
+    <span class="pt">Role para explorar</span>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section>
+  <p class="section-label">
+    <span class="en">profile</span>
+    <span class="pt">perfil</span>
+  </p>
+  <h2 class="section-title">
+    <span class="en">From infrastructure roots<br/>to CSIRT & CTI operations.</span>
+    <span class="pt">Da base em infraestrutura<br/>às operações de CSIRT & CTI.</span>
+  </h2>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <p>
+        <span class="en">8+ years of experience in Information Technology, with a focus on cybersecurity engineering, cyber incident analysis, Cyber Threat Analysis, and CSIRT/SOC operations. I conduct investigations and incident response, reducing MTTR through advanced log correlation and automated response playbooks.</span>
+        <span class="pt">Mais de 8 anos de experiência em Tecnologia da Informação, com atuação em engenharia de cibersegurança, análise de incidentes, Cyber Threat Analysis e CSIRT/SOC. Realizo investigações e resposta a incidentes, reduzindo o MTTR por meio de correlação avançada de logs e playbooks automatizados.</span>
+      </p>
+      <p>
+        <span class="en">Experienced in network traffic analysis (pcap/Wireshark), networking and protocols (TCP/IP, DNS, HTTP/S, SMTP), and log analysis from systems, proxies, and gateways. Strong knowledge in TTPs, <strong>MITRE ATT&CK</strong> and Cyber Kill Chain frameworks. IOC triage and enrichment — hashes, domains, IPs, URLs, certificates, and YARA rules.</span>
+        <span class="pt">Experiência em análise de tráfego de rede (pcap/Wireshark), redes e protocolos (TCP/IP, DNS, HTTP/S, SMTP) e análise de logs. Conhecimento em TTPs, framework <strong>MITRE ATT&CK</strong> e Cyber Kill Chain. Triagem e enriquecimento de IOCs — hashes, domínios, IPs, URLs, certificados e YARA.</span>
+      </p>
+      <p>
+        <span class="en">Production of technical and strategic reports, including post-incident reports. Collection, analysis, and correlation of threat intelligence (IoCs and TTPs) to support SOC/CSIRT & CTI in detection and incident response — takedown, MITRE mapping, threat actor tracking. Operation in regulated environments (BACEN, LGPD, PCI-DSS), with a strong focus on fraud, financial crime, and advanced threats.</span>
+        <span class="pt">Produção de relatórios técnicos e estratégicos, incluindo pós-incidente. Coleta, análise e correlação de inteligência de ameaças (IoCs e TTPs) para apoiar SOC/CSIRT & CTI — takedown, mapeamento MITRE, rastreio de threat actors. Atuação em ambientes regulados (BACEN, LGPD, PCI-DSS), com foco em fraudes, crimes financeiros e ameaças avançadas.</span>
+      </p>
+      <p>
+        <span class="en">Detection engineering: creation and tuning of alerts and use cases in SIEM/EDR — reducing false positives and increasing risk-based detection effectiveness. Query languages: SPL, FQL, KQL. Scripting for automation and analysis: <strong>Python, Bash, PowerShell</strong>. Experience with AI/LLMs applied to triage and threat intelligence enrichment. API integrations, SOAR playbooks, and ingestion pipelines for SIEM, EDR, and Cloud.</span>
+        <span class="pt">Engenharia de detecção: criação e ajuste de alertas e use cases em SIEM/EDR — reduzindo falsos positivos e aumentando a eficácia da detecção baseada em risco. Linguagens de query: SPL, FQL, KQL. Scripting para automação: <strong>Python, Bash, PowerShell</strong>. Experiência com IA/LLMs aplicados à triagem e enriquecimento de inteligência. Integração via APIs, playbooks de SOAR e pipelines de ingestão para SIEM, EDR e Cloud.</span>
+      </p>
+      <div class="about-tags">
+        <span class="tag hi">Cyber Threat Intelligence (CTI)</span>
+        <span class="tag hi">CSIRT</span>
+        <span class="tag hi">Threat Hunting</span>
+        <span class="tag hi">Incident Response</span>
+        <span class="tag">Detection Engineering</span>
+        <span class="tag">IOC Enrichment</span>
+        <span class="tag">SIEM · EDR · SOAR</span>
+        <span class="tag">SPL · FQL · KQL</span>
+        <span class="tag">Python · Bash · PowerShell</span>
+        <span class="tag">PCAP · Wireshark</span>
+        <span class="tag">MITRE ATT&CK</span>
+        <span class="tag">Cyber Kill Chain</span>
+        <span class="tag">BACEN · LGPD · PCI-DSS</span>
+        <span class="tag">AI/LLM Applied</span>
+        <span class="tag">Windows · Linux</span>
+      </div>
+    </div>
+
+    <div class="stats-block">
+      <div class="stat-item">
+        <div class="stat-num">8+</div>
+        <div class="stat-label">
+          <span class="en">Years in Information Technology<br/>— infra, networks, security engineering</span>
+          <span class="pt">Anos em Tecnologia da Informação<br/>— infra, redes e engenharia de segurança</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">CSIRT</div>
+        <div class="stat-label">
+          <span class="en">Incident response, MTTR reduction,<br/>IOC triage & threat actor tracking</span>
+          <span class="pt">Resposta a incidentes, redução de MTTR,<br/>triagem de IOCs e rastreio de threat actors</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">SOC·CTI</div>
+        <div class="stat-label">
+          <span class="en">Security Engineer focused on threat detection,<br/>intelligence & incident response at scale</span>
+          <span class="pt">Security Engineer focada em detecção,<br/>inteligência de ameaças e resposta a incidentes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section class="stack-section">
+  <p class="section-label">
+    <span class="en">technical stack</span>
+    <span class="pt">stack técnico</span>
+  </p>
+  <h2 class="section-title">
+    <span class="en">Tools I operate daily.</span>
+    <span class="pt">Ferramentas que opero diariamente.</span>
+  </h2>
+
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-icon">🔍</div>
+      <div class="stack-name">Splunk</div>
+      <div class="stack-type">SIEM · SPL · Correlation Rules<br/>Dashboards · Alert Tuning</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🔴</div>
+      <div class="stack-name">CrowdStrike Falcon</div>
+      <div class="stack-type">EDR · Custom IOAs<br/>Binary Monitoring · Behavioral Rules</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🛡️</div>
+      <div class="stack-name">Microsoft Sentinel</div>
+      <div class="stack-type">SIEM · KQL · Analytics Rules<br/>Workbooks · SOAR</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🐝</div>
+      <div class="stack-name">Wazuh</div>
+      <div class="stack-type">SIEM/XDR · File Integrity<br/>Rules · Threat Detection</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">☁️</div>
+      <div class="stack-name">AWS</div>
+      <div class="stack-type">CloudTrail · GuardDuty<br/>Cloud Threat Hunting · IAM</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🌐</div>
+      <div class="stack-name">Cloudflare</div>
+      <div class="stack-type">WAF · Gateway · DNS Security<br/>Zero Trust · Phishing Protection</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🔒</div>
+      <div class="stack-name">Netskope</div>
+      <div class="stack-type">CASB · SSE · DLP<br/>Cloud Security · Zero Trust</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">👤</div>
+      <div class="stack-name">JumpCloud</div>
+      <div class="stack-type">IAM · Directory · SSO<br/>Device Management</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🎯</div>
+      <div class="stack-name">MITRE ATT&CK</div>
+      <div class="stack-type">Threat Mapping · TTP Profiling<br/>Gap Analysis · Detection Coverage</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🕵️</div>
+      <div class="stack-name">Threat Intelligence</div>
+      <div class="stack-type">IOC · CTI Feeds · YARA<br/>Campaign Tracking · TIPs</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">🛜</div>
+      <div class="stack-name">Network & Infra</div>
+      <div class="stack-type">TCP/IP · DNS · Wireshark<br/>IDS/IPS · Firewalls · pcap</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon">⚡</div>
+      <div class="stack-name">Automation & SOAR</div>
+      <div class="stack-type">Python · Bash · PowerShell<br/>Playbooks · API Integrations</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <p class="section-label">
+    <span class="en">selected projects</span>
+    <span class="pt">projetos selecionados</span>
+  </p>
+  <h2 class="section-title">
+    <span class="en">Detections that<br/>actually matter.</span>
+    <span class="pt">Detecções que<br/>realmente importam.</span>
+  </h2>
+  <div class="divider"></div>
+
+  <div class="projects-list">
+
+    <div class="project-item">
+      <div class="project-num">01</div>
+      <div>
+        <div class="project-title">
+          <span class="en">Phishing Campaign Alert Automation</span>
+          <span class="pt">Automação de Alertas de Campanhas de Phishing</span>
+        </div>
+        <div class="project-desc">
+          <span class="en">Designed an automated triage pipeline for phishing campaign alerts, correlating IOCs from CTI feeds with email and gateway telemetry. The system classifies threats by campaign pattern before a human analyst is involved — cutting false positive volume and drastically reducing mean time to triage.</span>
+          <span class="pt">Projetei um pipeline automatizado de triagem para alertas de campanhas de phishing, correlacionando IOCs de feeds de CTI com telemetria de e-mail e gateway. O sistema classifica ameaças por padrão de campanha antes do envolvimento do analista — reduzindo volume de falsos positivos e o tempo médio de triagem.</span>
+        </div>
+        <div class="project-insight">
+          <span class="en">Fewer false positives means analysts spend time on real threats — every minute saved in triage is a minute gained in response.</span>
+          <span class="pt">Menos falsos positivos significa que analistas focam em ameaças reais — cada minuto economizado na triagem é um minuto ganho na resposta.</span>
+        </div>
+        <div class="project-stack">
+          <span class="project-tag">Cloudflare Gateway</span>
+          <span class="project-tag">CTI Feeds</span>
+          <span class="project-tag">IOC Correlation</span>
+          <span class="project-tag">Splunk</span>
+          <span class="project-tag">Alert Automation</span>
+        </div>
+      </div>
+      <div class="project-badge">CSIRT · CTI</div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-num">02</div>
+      <div>
+        <div class="project-title">
+          <span class="en">Critical Binary Detection — CrowdStrike Falcon</span>
+          <span class="pt">Detecção de Binários Críticos — CrowdStrike Falcon</span>
+        </div>
+        <div class="project-desc">
+          <span class="en">Developed custom detection logic in CrowdStrike Falcon to monitor and alert on the execution of high-risk binaries — including LOLBins and tools commonly abused in post-exploitation stages. Rules are grounded in MITRE ATT&CK techniques (Execution, Defense Evasion, Discovery) and tuned per environment to minimize noise.</span>
+          <span class="pt">Desenvolvi lógica de detecção customizada no CrowdStrike Falcon para monitorar e alertar sobre execução de binários de alto risco — incluindo LOLBins e ferramentas abusadas em estágios pós-exploração. As regras são baseadas em técnicas MITRE ATT&CK (Execução, Evasão, Descoberta) e ajustadas por ambiente para minimizar ruído.</span>
+        </div>
+        <div class="project-insight">
+          <span class="en">Attackers love living off the land. Knowing which binaries they favor — and detecting exactly those — is how you catch intrusions before they escalate.</span>
+          <span class="pt">Atacantes adoram usar ferramentas nativas do sistema. Saber quais binários eles preferem — e detectar exatamente esses — é como se intercepta intrusões antes que escalem.</span>
+        </div>
+        <div class="project-stack">
+          <span class="project-tag">CrowdStrike Falcon</span>
+          <span class="project-tag">Custom IOAs</span>
+          <span class="project-tag">LOLBins</span>
+          <span class="project-tag">MITRE ATT&CK</span>
+          <span class="project-tag">EDR Tuning</span>
+        </div>
+      </div>
+      <div class="project-badge">Detection Engineering</div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-num">03</div>
+      <div>
+        <div class="project-title">
+          <span class="en">Risk-Based Access & Anomalous Behavior Detections</span>
+          <span class="pt">Detecções Baseadas em Risco de Acesso e Comportamento Anômalo</span>
+        </div>
+        <div class="project-desc">
+          <span class="en">Built behavioral detection rules focused on identity and access risk: impossible travel, off-hours privilege escalation, lateral movement indicators, and access pattern deviations. Correlating identity telemetry with network activity surfaced insider risk and compromised credential scenarios that signature-based rules would miss entirely.</span>
+          <span class="pt">Construí regras de detecção comportamental focadas em risco de identidade e acesso: viagem impossível, escalada de privilégio fora do horário, indicadores de movimento lateral e desvios de padrão de acesso. A correlação revelou riscos internos e credenciais comprometidas que regras por assinatura jamais capturariam.</span>
+        </div>
+        <div class="project-insight">
+          <span class="en">The most dangerous access is the one that looks legitimate. Behavioral baselines catch what signatures never will.</span>
+          <span class="pt">O acesso mais perigoso é aquele que parece legítimo. Baselines comportamentais capturam o que assinaturas jamais capturarão.</span>
+        </div>
+        <div class="project-stack">
+          <span class="project-tag">UEBA</span>
+          <span class="project-tag">Identity Telemetry</span>
+          <span class="project-tag">Splunk</span>
+          <span class="project-tag">AWS CloudTrail</span>
+          <span class="project-tag">Lateral Movement</span>
+        </div>
+      </div>
+      <div class="project-badge">Behavioral Detection</div>
+    </div>
+
+    <div class="project-item">
+      <div class="project-num">04</div>
+      <div>
+        <div class="project-title">
+          <span class="en">Splunk Detection Refinement — SOC Maturity Initiative</span>
+          <span class="pt">Refinamento de Detecções no Splunk — Maturidade do SOC</span>
+        </div>
+        <div class="project-desc">
+          <span class="en">Led a systematic review and rewrite of existing Splunk correlation rules to eliminate alert fatigue. Applied risk-scoring logic, contextual enrichment, and suppression strategies — resulting in a leaner alert queue, faster response times, and measurable reduction in false positive rates across critical detection categories.</span>
+          <span class="pt">Liderei revisão sistemática e reescrita das regras de correlação no Splunk para eliminar fadiga de alertas. Apliquei lógica de pontuação de risco, enriquecimento contextual e estratégias de supressão — resultando em fila de alertas mais enxuta e redução mensurável de falsos positivos em categorias críticas.</span>
+        </div>
+        <div class="project-insight">
+          <span class="en">A SIEM full of noise is a SIEM that fails. Reducing false positives isn't just comfort — it's the difference between catching real attacks and drowning in them.</span>
+          <span class="pt">Um SIEM cheio de ruído é um SIEM que falha. Reduzir falsos positivos não é só conforto — é a diferença entre capturar ataques reais e se afogar neles.</span>
+        </div>
+        <div class="project-stack">
+          <span class="project-tag">Splunk SPL</span>
+          <span class="project-tag">Risk Scoring</span>
+          <span class="project-tag">Alert Tuning</span>
+          <span class="project-tag">Contextual Enrichment</span>
+          <span class="project-tag">SOC Metrics</span>
+        </div>
+      </div>
+      <div class="project-badge">SIEM Engineering</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section>
+  <p class="section-label">
+    <span class="en">experience</span>
+    <span class="pt">experiência</span>
+  </p>
+  <h2 class="section-title">
+    <span class="en">Where I've operated.</span>
+    <span class="pt">Onde já atuei.</span>
+  </h2>
+
+  <div class="exp-list">
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">mar 2025 — present</div>
+        <div class="exp-company">will bank</div>
+        <div class="exp-location">São Paulo, BR</div>
+      </div>
+      <div>
+        <div class="exp-role">Cybersecurity Analyst PL — CSIRT · CTI</div>
+        <div class="exp-desc">
+          <span class="en">High-severity incident investigation across cloud, Linux, Windows and macOS environments. Detection engineering with Splunk — alerts, dashboards, runbooks and playbooks. Proactive threat hunting based on MITRE ATT&CK gap analysis. CTI operations: IOC creation, TTP mapping, threat actor tracking, strategic and tactical intelligence reports. Automation via Python, Bash and PowerShell. Regulated environment (BACEN, LGPD).</span>
+          <span class="pt">Investigação de incidentes de alta severidade em ambientes cloud, Linux, Windows e macOS. Engenharia de detecção com Splunk — alertas, dashboards, runbooks e playbooks. Threat hunting proativo baseado em análise de lacunas MITRE ATT&CK. Operações de CTI: criação de IoCs, mapeamento de TTPs, rastreio de threat actors, relatórios estratégicos e táticos. Automação via Python, Bash e PowerShell. Ambiente regulado (BACEN, LGPD).</span>
+        </div>
+        <div class="exp-tags">
+          <span class="exp-tag">CSIRT</span><span class="exp-tag">SOC</span>
+          <span class="exp-tag">Cyber Threat Intelligence (CTI)</span>
+          <span class="exp-tag">Incident Response</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">ago 2024 — mar 2025</div>
+        <div class="exp-company">SOFTWALL</div>
+        <div class="exp-location">Curitiba, BR</div>
+      </div>
+      <div>
+        <div class="exp-role">Cyber Security Analyst — Purple Team</div>
+        <div class="exp-desc">
+          <span class="en">Integrated Red and Blue Team practices to strengthen organizational security posture. Pentest and attack simulations, SIEM use case development, EDR and DLP management, IDS/IPS policy configuration, incident response leadership, and forensic investigations. Delivered executive and technical SOC presentations and PoC initiatives.</span>
+          <span class="pt">Integração de práticas Red e Blue Team para fortalecer a postura de segurança. Pentest e simulações de ataque, desenvolvimento de use cases em SIEM, gestão de EDR e DLP, configuração de políticas IDS/IPS, liderança de resposta a incidentes e investigações forenses. Apresentações executivas e técnicas de SOC e iniciativas de PoC.</span>
+        </div>
+        <div class="exp-tags">
+          <span class="exp-tag">CSIRT</span><span class="exp-tag">SOC</span>
+          <span class="exp-tag">Threat Hunting</span>
+          <span class="exp-tag">Cyber Threat Intelligence (CTI)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">mai 2024 — set 2024</div>
+        <div class="exp-company">Instituto das Cidades Inteligentes</div>
+        <div class="exp-location">Curitiba, BR</div>
+      </div>
+      <div>
+        <div class="exp-role">
+          <span class="en">Information Security Analyst</span>
+          <span class="pt">Analista de Segurança da Informação</span>
+        </div>
+        <div class="exp-desc">
+          <span class="en">Incident response, SIEM use case creation, IDS/IPS and firewall administration, EDR and DLP management, proactive threat hunting to identify emerging threats and infrastructure gaps.</span>
+          <span class="pt">Resposta a incidentes, criação de use cases em SIEM, administração de IDS/IPS e firewalls, gestão de EDR e DLP, threat hunting proativo para identificar ameaças emergentes e lacunas na infraestrutura.</span>
+        </div>
+        <div class="exp-tags">
+          <span class="exp-tag">SIEM</span><span class="exp-tag">IDS/IPS</span>
+          <span class="exp-tag">EDR</span><span class="exp-tag">Threat Hunting</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">nov 2023 — ago 2024</div>
+        <div class="exp-company">SellersFi</div>
+        <div class="exp-location">Florida, US 🇺🇸</div>
+      </div>
+      <div>
+        <div class="exp-role">Cyber Security Analyst</div>
+        <div class="exp-desc">
+          <span class="en">IT security controls review and implementation, SDLC security support, real-time monitoring of attacks and intrusions, vulnerability assessments and ethical hacking, IAM management, phishing campaign response, and IT security audits. Delivered reports to both technical and non-technical audiences.</span>
+          <span class="pt">Revisão e implementação de controles de segurança, suporte ao SDLC seguro, monitoramento em tempo real de ataques e intrusões, avaliações de vulnerabilidade e hacking ético, gestão de IAM, resposta a campanhas de phishing e auditorias de segurança. Relatórios para públicos técnicos e executivos.</span>
+        </div>
+        <div class="exp-tags">
+          <span class="exp-tag">Vulnerability Assessment</span><span class="exp-tag">IAM</span>
+          <span class="exp-tag">Pentest</span><span class="exp-tag">Monitoring</span>
+          <span class="exp-tag">Security Audit</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">abr 2023 — out 2023</div>
+        <div class="exp-company">Gran Cursos Online</div>
+        <div class="exp-location">Curitiba, BR</div>
+      </div>
+      <div>
+        <div class="exp-role">
+          <span class="en">Infrastructure & SOC Assistant</span>
+          <span class="pt">Assistente de Infraestrutura e SOC</span>
+        </div>
+        <div class="exp-desc">
+          <span class="en">Active Directory and Azure AD management, VPN configuration, vulnerability management, incident response, infrastructure documentation, and security policy development.</span>
+          <span class="pt">Gestão de Active Directory e Azure AD, configuração de VPN, gestão de vulnerabilidades, resposta a incidentes, documentação de infraestrutura e desenvolvimento de políticas de segurança.</span>
+        </div>
+        <div class="exp-tags">
+          <span class="exp-tag">SOC</span><span class="exp-tag">Infraestrutura</span>
+          <span class="exp-tag">Redes</span><span class="exp-tag">SysAdmin</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section style="background: var(--bg2); border-top: 1px solid var(--border);">
+  <p class="section-label">
+    <span class="en">education</span>
+    <span class="pt">formação</span>
+  </p>
+  <h2 class="section-title">
+    <span class="en">Academic background.</span>
+    <span class="pt">Formação acadêmica.</span>
+  </h2>
+
+  <div style="display: flex; flex-direction: column; gap: 20px; max-width: 700px;">
+    <div class="edu-card">
+      <span class="edu-status">
+        <span class="en">In Progress · 2025–2026</span>
+        <span class="pt">Em Andamento · 2025–2026</span>
+      </span>
+      <div class="edu-name">
+        <span class="en">Post-Graduation — Defensive Cyber Security · Blue Team Operations</span>
+        <span class="pt">Pós-Graduação — Cyber Security Defensivo · Blue Team Operations</span>
+      </div>
+      <div class="edu-body">FIAP</div>
+    </div>
+
+    <div class="edu-card">
+      <span class="edu-status" style="background: rgba(61,139,255,0.10); color: var(--blue); border-color: rgba(61,139,255,0.10);">
+        <span class="en">In Progress · 2023–2025</span>
+        <span class="pt">Em Andamento · 2023–2025</span>
+      </span>
+      <div class="edu-name">
+        <span class="en">Technology Degree — Computer Networks</span>
+        <span class="pt">Curso Superior de Tecnologia — Redes de Computadores</span>
+      </div>
+      <div class="edu-body">UNOPAR – Universidade Norte do Paraná</div>
+    </div>
+  </div>
+</section>
+
+
+
+
+<!-- CONTACT -->
+<section class="contact-section">
+  <p class="section-label">
+    <span class="en">contact</span>
+    <span class="pt">contato</span>
+  </p>
+  <p class="contact-text">
+    <span class="en">If you're interested or would like to talk to me, you can find me on LinkedIn or reach me directly via WhatsApp.</span>
+    <span class="pt">Se ficou interessado ou gostaria de falar comigo, você pode me encontrar no LinkedIn ou diretamente pelo WhatsApp.</span>
+  </p>
+  <div class="contact-links">
+    <a href="https://wa.me/5541997661720" target="_blank" class="contact-link">📱 +55 41 99766-1720</a>
+    <a href="https://www.linkedin.com/in/nayane-santos-da-luz/" target="_blank" class="contact-link">↗ LinkedIn</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-sig">Nayane Luz · <span style="color:var(--blue)">Security Engineer</span></div>
+  <div class="footer-sig">
+    <span class="en">Brazil · Open to remote ·</span>
+    <span class="pt">Brasil · Remoto ·</span>
+    <span style="color:var(--blue)"> 2025</span>
+  </div>
+</footer>
+
+<script>
+  function setLang(lang) {
+    document.body.classList.toggle('pt-mode', lang === 'pt');
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.l === lang);
+    });
+    // fix: remove active from both then set correct
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.lang-btn[data-l="${lang}"]`).classList.add('active');
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.project-item, .edu-card, .stack-card, .stat-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(14px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
