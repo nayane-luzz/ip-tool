@@ -1,0 +1,12 @@
+# Reports (exceto placeholder)
+reports/*
+!reports/.gitkeep
+
+# Slack payloads temporários
+slack_payload*.json
+
+# Logs de erros
+*.log
+
+# macOS
+.DS_Store
